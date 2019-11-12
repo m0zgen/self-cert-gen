@@ -1,3 +1,5 @@
 ssl.conf
 self-key.pem
 self-request.csr
+nginx-selfsigned.crt
+nginx-selfsigned.key
