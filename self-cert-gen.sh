@@ -31,9 +31,6 @@ L = ${locality}
 O = ${SERVER_NAME}
 OU = ${SERVER_NAME}
 CN = www.${SERVER_NAME}
-[CA_default]
-default_days = 356
-default_md  = sha256
 [v3_req]
 keyUsage = keyEncipherment, dataEncipherment
 extendedKeyUsage = serverAuth
@@ -52,7 +49,7 @@ function installSelfSignedNginxSSL() {
   mkdir -p /etc/nginx/ssl/
   eoff
   # Gen
-  openssl req -x509 -newkey rsa:4096 -keyout $SCRIPT_PATH/self-key.pem -nodes -out $SCRIPT_PATH/self-request.csr -config $SCRIPT_PATH/ssl.conf
+  openssl req -x509 -newkey rsa:4096 -days 365 -keyout $SCRIPT_PATH/self-key.pem -nodes -out $SCRIPT_PATH/self-request.csr -config $SCRIPT_PATH/ssl.conf
 
 }
 
