@@ -16,6 +16,7 @@ locality=World
 organization=$SERVER_NAME
 organizationalunit=$SERVER_NAME
 email=root@localhost
+days=365
 
 function eoff() {
 
@@ -49,7 +50,7 @@ function installSelfSignedNginxSSL() {
   mkdir -p /etc/nginx/ssl/
   eoff
   # Gen
-  openssl req -x509 -newkey rsa:4096 -days 365 -keyout $SCRIPT_PATH/self-key.pem -nodes -out $SCRIPT_PATH/self-request.csr -config $SCRIPT_PATH/ssl.conf
+  openssl req -x509 -newkey rsa:4096 -days $days -keyout $SCRIPT_PATH/self-key.pem -nodes -out $SCRIPT_PATH/self-request.csr -config $SCRIPT_PATH/ssl.conf
 
 }
 
