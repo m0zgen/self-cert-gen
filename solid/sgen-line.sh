@@ -18,12 +18,9 @@ days=365
 
 function installSelfSignedNginxSSL() {
 
-	# Generate SSL and config
-	mkdir -p /etc/nginx/ssl
-
-	openssl req -x509 -nodes -days $days -newkey rsa:4096 \
-	-keyout $SCRIPT_PATH/nginx-selfsigned.key -out $SCRIPT_PATH/nginx-selfsigned.crt \
-	-subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$SERVER_NAME/emailAddress=$email"
+    openssl req -x509 -nodes -days $days -newkey rsa:4096 \
+    -keyout $SCRIPT_PATH/nginx-selfsigned.key -out $SCRIPT_PATH/nginx-selfsigned.crt \
+    -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$SERVER_NAME/emailAddress=$email"
 
 }
 
