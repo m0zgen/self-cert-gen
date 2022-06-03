@@ -57,6 +57,7 @@ usage() {
 	echo -e "\nArguments:
 	-l (Single line config section. Default.)
 	-c (Custom config section)
+	-m (monit.pem generator)
 	-t (Deploy generated config to custom target catalog)\n"
 	exit 1
 
@@ -67,6 +68,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         -l|--line) _LINE=1; ;;
 		-c|--config) _CONFIG=1; ;;
+		-m|--monit) _MONIT=1; ;;
 		-t|--target) _DIR=1 _TARGET="$2"; shift ;;
 		-h|--help) usage ;;	
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
@@ -74,7 +76,7 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Generate certificate
+# Generate certificate from Conf
 function generateCertFromConfig() {
 
 	echo -e "Certs will be created in $CERTS_CATALOG: self-key.pem / self-request.csr :\n"
@@ -84,6 +86,7 @@ function generateCertFromConfig() {
 	ls -l $CERTS_CATALOG
 }
 
+# Single line generator
 function generateCertFromLine() {
 
 	echo -e "Certs will be created in $CERTS_CATALOG: nginx-selfsigned.crt / nginx-selfsigned.key :\n"
@@ -94,6 +97,34 @@ function generateCertFromLine() {
 	ls -l $CERTS_CATALOG
 }
 
+# Monit pem generator
+function generateMonitPem() {
+
+	eoff
+	openssl req -new -x509 -days $days -nodes \
+    -config $CERTS_CATALOG/ssl.conf -out $CERTS_CATALOG/monit.pem \
+    -keyout $CERTS_CATALOG/monit.pem
+
+	openssl dhparam -2 2048 >> $CERTS_CATALOG/monit.pem
+	chmod 600  $CERTS_CATALOG/monit.pem
+	
+	echo -e "
+monit.pem located in $CERTS_CATALOG/monit.pem
+	
+you can copy monit.pem to /etc/monit/certs/ with command:\n
+cp $CERTS_CATALOG/monit.pem /etc/monit/certs/monit.pem
+
+	Example monit SSL config:
+
+	    SET HTTPD PORT 2812
+	      WITH SSL {
+	        PEMFILE: /etc/ssl/certs/monit.pem
+	        SELFSIGNED: ALLOW
+	    }
+"
+}
+
+# Cerate catalog if needed
 function createCatalog() {
 
 	if [[ ! -d "$_TARGET" ]]; then
@@ -105,6 +136,7 @@ function createCatalog() {
 
 }
 
+# Target catalog from -t option
 function createTarget() {
 
 	if [[ -z "$_TARGET" ]]; then
@@ -115,6 +147,7 @@ function createTarget() {
 	
 }
 
+# Options
 if [[ "$_LINE" -eq "1" ]]; then
 	
 	generateCertFromLine
@@ -126,6 +159,13 @@ if [[ "$_LINE" -eq "1" ]]; then
 elif [[ "$_CONFIG" -eq "1" ]]; then
 	
 	generateCertFromConfig
+
+	if [[ "$_DIR" -eq "1" ]]; then
+		createTarget
+	fi
+elif [[ "$_MONIT" -eq "1" ]]; then
+	
+	generateMonitPem
 
 	if [[ "$_DIR" -eq "1" ]]; then
 		createTarget
