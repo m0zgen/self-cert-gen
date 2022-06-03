@@ -69,6 +69,7 @@ while [[ "$#" -gt 0 ]]; do
         -l|--line) _LINE=1; ;;
 		-c|--config) _CONFIG=1; ;;
 		-m|--monit) _MONIT=1; ;;
+		-n|--nginx) _NGINX=1; ;;
 		-t|--target) _DIR=1 _TARGET="$2"; shift ;;
 		-h|--help) usage ;;	
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
@@ -89,12 +90,37 @@ function generateCertFromConfig() {
 # Single line generator
 function generateCertFromLine() {
 
+	echo -e "Certs will be created in $CERTS_CATALOG: selfsigned.crt / selfsigned.key :\n"
+
+	openssl req -x509 -nodes -days $days -newkey rsa:4096 \
+	-keyout $CERTS_CATALOG/nginx-selfsigned.key -out $CERTS_CATALOG/nginx-selfsigned.crt \
+	-subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$SERVER_NAME/emailAddress=$email"
+	ls -l $CERTS_CATALOG
+}
+
+# Nginx
+function generateNginxCerts() {
+
 	echo -e "Certs will be created in $CERTS_CATALOG: nginx-selfsigned.crt / nginx-selfsigned.key :\n"
 
 	openssl req -x509 -nodes -days $days -newkey rsa:4096 \
 	-keyout $CERTS_CATALOG/nginx-selfsigned.key -out $CERTS_CATALOG/nginx-selfsigned.crt \
 	-subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$SERVER_NAME/emailAddress=$email"
 	ls -l $CERTS_CATALOG
+
+		echo -e "
+Nginx certs located in:
+- $CERTS_CATALOG/nginx-selfsigned.crt
+- $CERTS_CATALOG/nginx-selfsigned.key
+	
+you can copy certificates to any place, as example to /etc/nginx/certs/ with command:\n
+cp $CERTS_CATALOG/nginx* /etc/nginx/certs/
+
+	Example nginx config:
+
+    ssl_certificate /etc/nginx/certs/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/nginx/certs/ginx-selfsigned.key;
+"
 }
 
 # Monit pem generator
@@ -167,6 +193,13 @@ elif [[ "$_CONFIG" -eq "1" ]]; then
 elif [[ "$_MONIT" -eq "1" ]]; then
 	
 	generateMonitPem
+
+	if [[ "$_DIR" -eq "1" ]]; then
+		createTarget
+	fi
+elif [[ "$_NGINX" -eq "1" ]]; then
+	
+	generateNginxCerts
 
 	if [[ "$_DIR" -eq "1" ]]; then
 		createTarget
