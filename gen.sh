@@ -4,7 +4,7 @@
 # ---------------------------------------------------\
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
-
+cd $SCRIPT_PATH
 
 # Variables
 SERVER_NAME=`hostname`
@@ -206,8 +206,9 @@ elif [[ "$_NGINX" -eq "1" ]]; then
 	fi
 else
 	usage
+	cd -
 	exit 1
 fi
 
-
+cd -
 
