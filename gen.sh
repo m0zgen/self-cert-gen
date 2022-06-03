@@ -98,6 +98,7 @@ function generateCertFromLine() {
 }
 
 # Monit pem generator
+# https://mmonit.com/wiki/Monit/EnableSSLInMonit
 function generateMonitPem() {
 
 	eoff
