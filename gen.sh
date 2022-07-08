@@ -1,4 +1,6 @@
 #!/bin/bash
+# Author: Yevgeniy Goncharov aka xck, http://sys-adm.in
+# Simple self signed certificate generator
 
 # Envs
 # ---------------------------------------------------\
